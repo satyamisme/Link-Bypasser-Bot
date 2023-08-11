@@ -357,7 +357,7 @@ def igggames(url):
             res = requests.get(ele)
             soup = BeautifulSoup(res.text,"html.parser")
             turl = soup.find("p",class_="uk-card uk-card-body uk-card-default uk-card-hover").find("a").get("href")
-            links = links + "🧲 ```" + bypassBluemediafiles(turl,True) + "```\n\n"
+            links = links + "🧲 `" + bypassBluemediafiles(turl,True) + "`\n\n"
         elif ele != "https://igg-games.com/how-to-install-a-pc-game-and-update.html":
             if fix:
                 tt = ele.split("/")[2]
@@ -998,7 +998,7 @@ def shortingly(url):
 # Gyanilinks - gtlinks.me
 
 def gyanilinks(url):
-    DOMAIN = "https://go.theforyou.in/"
+    DOMAIN = "https://go.hipsonyc.com/"
     client = cloudscraper.create_scraper(allow_brotli=False)
     url = url[:-1] if url[-1] == '/' else url
     code = url.split("/")[-1]
@@ -1623,21 +1623,36 @@ def xpshort(url):
 # Vnshortner- 
 
 def vnshortener(url):
-    client = cloudscraper.create_scraper(allow_brotli=False)
+    sess = requests.session()
     DOMAIN = "https://vnshortener.com/"
-    url = url[:-1] if url[-1] == '/' else url
-    code = url.split("/")[-1]
-    final_url = f"{DOMAIN}/{code}"
+    org = "https://nishankhatri.xyz"
+    PhpAcc = DOMAIN + "link/new.php"
     ref = "https://nishankhatri.com.np/"
-    h = {"referer": ref}
-    resp = client.get(final_url,headers=h)
+    go = DOMAIN + "links/go"
+
+    code = url.split("/")[3]
+    final_url = f"{DOMAIN}/{code}/"
+    headers = {'authority': DOMAIN, 'origin': org}
+
+    data = {'step_1': code,}
+    response = sess.post(PhpAcc, headers=headers, data=data).json()
+    id = response["inserted_data"]["id"]
+    data = {'step_2': code, 'id': id,}
+    response = sess.post(PhpAcc, headers=headers, data=data).json()
+    
+    headers['referer'] = ref
+    params = {'sid': str(id)}
+    resp = sess.get(final_url, params=params, headers=headers)
     soup = BeautifulSoup(resp.content, "html.parser")
     inputs = soup.find_all("input")
     data = { input.get('name'): input.get('value') for input in inputs }
-    h = { "x-requested-with": "XMLHttpRequest" }
-    time.sleep(8)
-    r = client.post(f"{DOMAIN}/links/go", data=data, headers=h)
-    try: return r.json()['url']
+
+    time.sleep(1)
+    headers['x-requested-with'] = 'XMLHttpRequest'
+    try:
+        r = sess.post(go, data=data, headers=headers).json()
+        if r["status"] == "success": return r["url"]
+        else: raise
     except: return "Something went wrong :("
 
 
@@ -1688,21 +1703,24 @@ def dulink(url):
 # krownlinks
 
 def krownlinks(url):
-    client = requests.session()
-    DOMAIN = "https://tech.bloggertheme.xyz"
-    url = url[:-1] if url[-1] == '/' else url
+    client = cloudscraper.create_scraper(allow_brotli=False)
+    DOMAIN = "https://go.hostadviser.net/"
+    url = url[:-1] if url[-1] == "/" else url
     code = url.split("/")[-1]
     final_url = f"{DOMAIN}/{code}"
-    resp = client.get(final_url)
+    ref = "blog.hostadviser.net/"
+    h = {"referer": ref}
+    resp = client.get(final_url, headers=h)
     soup = BeautifulSoup(resp.content, "html.parser")
-    try: inputs = soup.find(id="go-link").find_all(name="input")
-    except: return "Incorrect Link"
-    data = { input.get('name'): input.get('value') for input in inputs }
-    h = { "x-requested-with": "XMLHttpRequest" }
-    time.sleep(10)
+    inputs = soup.find_all("input")
+    data = {input.get("name"): input.get("value") for input in inputs}
+    h = {"x-requested-with": "XMLHttpRequest"}
+    time.sleep(8)
     r = client.post(f"{DOMAIN}/links/go", data=data, headers=h)
-    try: return r.json()['url']
-    except: return "Something went wrong :("
+    try:
+        return str(r.json()["url"])
+    except BaseException:
+        return "Something went wrong :("
 
 
 ####################################################################################################
