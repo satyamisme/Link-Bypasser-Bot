@@ -1610,7 +1610,7 @@ def xpshort(url):
     url = url[:-1] if url[-1] == '/' else url
     code = url.split("/")[-1]
     final_url = f"{DOMAIN}/{code}"
-    ref = "https://www.twinthrottlers.xyz/"
+    ref = "https://www.animalwallpapers.online/"
     h = {"referer": ref}
     resp = client.get(final_url,headers=h)
     soup = BeautifulSoup(resp.content, "html.parser")
@@ -1822,7 +1822,7 @@ def moneykamalo(url):
     url = url[:-1] if url[-1] == '/' else url
     code = url.split("/")[-1]
     final_url = f"{DOMAIN}/{code}"
-    ref = "https://techkeshri.com/"
+    ref = "https://blog.techkeshri.com/"
     h = {"referer": ref}
     resp = client.get(final_url,headers=h)
     soup = BeautifulSoup(resp.content, "html.parser")
@@ -1952,21 +1952,47 @@ def mdiskpro(url):
 
 def tnshort(url):
     client = cloudscraper.create_scraper(allow_brotli=False)
-    DOMAIN = "https://page.tnlink.in/"
-    url = url[:-1] if url[-1] == '/' else url
+    DOMAIN = "https://news.speedynews.xyz/"
+    url = url[:-1] if url[-1] == "/" else url
     code = url.split("/")[-1]
     final_url = f"{DOMAIN}/{code}"
-    ref = "https://business.usanewstoday.club/"
+    ref = "https://market.finclub.in/"
     h = {"referer": ref}
-    resp = client.get(final_url,headers=h)
+    resp = client.get(final_url, headers=h)
     soup = BeautifulSoup(resp.content, "html.parser")
     inputs = soup.find_all("input")
-    data = { input.get('name'): input.get('value') for input in inputs }
-    h = { "x-requested-with": "XMLHttpRequest" }
-    time.sleep(8)
+    data = {input.get("name"): input.get("value") for input in inputs}
+    h = {"x-requested-with": "XMLHttpRequest"}
+    time.sleep(9)
     r = client.post(f"{DOMAIN}/links/go", data=data, headers=h)
-    try: return r.json()['url']
-    except: return "Something went wrong :("
+    try:
+        return str(r.json()["url"])
+    except BaseException:
+        return "Something went wrong :("
+
+#####################################################################################################
+# tnvalue
+
+def tnvalue(url):
+    client = cloudscraper.create_scraper(allow_brotli=False)
+    DOMAIN = "https://get.tnvalue.in"
+    url = url[:-1] if url[-1] == "/" else url
+    code = url.split("/")[-1]
+    final_url = f"{DOMAIN}/{code}"
+    ref = "https://finclub.in/"
+    h = {"referer": ref}
+    resp = client.get(final_url, headers=h)
+    soup = BeautifulSoup(resp.content, "html.parser")
+    inputs = soup.find_all("input")
+    data = {input.get("name"): input.get("value") for input in inputs}
+    h = {"x-requested-with": "XMLHttpRequest"}
+    time.sleep(12)
+    r = client.post(f"{DOMAIN}/links/go", data=data, headers=h)
+    try:
+        return str(r.json()["url"])
+    except BaseException:
+        return "Something went wrong :("
+
 
 
 #####################################################################################################
@@ -2189,7 +2215,7 @@ def shortners(url):
         return rocklinks(url)
         
     # ouo
-    elif "https://ouo.press/" or "https://ouo.io/" in url:
+    elif "https://ouo.press/" in url or "https://ouo.io/" in url:
         print("entered ouo: ",url)
         return ouo(url)
 
@@ -2279,9 +2305,14 @@ def shortners(url):
         return mdiskpro(url)
 
     # tnshort
-    elif "tnshort.in" in url:
-        print("entered tnshort: ",url)
+    elif "https://link.tnshort.net/" in url:
+        print("entered tnshort:", url)
         return tnshort(url)
+
+    # tnvalue
+    elif "https://link.tnvalue.in/" in url or "https://short.tnvalue.in/" in url or "https://get.tnvalue.in/" in url:
+        print("entered tnvalue:", url)
+        return tnvalue(url)
 
     # indianshortner
     elif "indianshortner.in" in url:

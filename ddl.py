@@ -374,10 +374,10 @@ def pixeldrain(url: str) -> str:
     file_id = url.split("/")[-1]
     if url.split("/")[-2] == "l":
         info_link = f"https://pixeldrain.com/api/list/{file_id}"
-        dl_link = f"https://pixeldrain.com/api/list/{file_id}/zip"
+        dl_link = f"https://pixeldrain.com/api/list/{file_id}/zip?download"
     else:
         info_link = f"https://pixeldrain.com/api/file/{file_id}/info"
-        dl_link = f"https://pixeldrain.com/api/file/{file_id}"
+        dl_link = f"https://pixeldrain.com/api/file/{file_id}?download"
     cget = create_scraper().request
     try:
         resp = cget('get', info_link).json()
@@ -520,42 +520,29 @@ def solidfiles(url: str) -> str:
 
 
 def krakenfiles(page_link: str) -> str:
-    """ krakenfiles direct link generator
-    Based on https://github.com/tha23rd/py-kraken
-    By https://github.com/junedkh """
-    cget = create_scraper().request
+    session = Session()
     try:
-        page_resp = cget('get', page_link)
+        res = session.get(url)
+        html = etree.HTML(res.text)
+        if post_url:= html.xpath('//form[@id="dl-form"]/@action'):
+        	post_url = f'https:{post_url[0]}'
+    	else:
+        	session.close()
+        	return ('ERROR: Unable to find post link.')
+    	if token:= html.xpath('//input[@id="dl-token"]/@value'):
+        	data = {'token': token[0]}
+    	else:
+        	session.close()
+        	return ('ERROR: Unable to find token for post.')
+	except Exception as e:
+        session.close()
+        return (f'ERROR: {e.__class__.__name__} Something went wrong')
+    try:
+        dl_link = session.post(post_url, data=data).json()
+		return dl_link['url']
     except Exception as e:
-        return (f"ERROR: {e.__class__.__name__}")
-    soup = BeautifulSoup(page_resp.text, "lxml")
-    try:
-        token = soup.find("input", id="dl-token")["value"]
-    except:
-        return (
-            f"ERROR: Page link is wrong: {page_link}")
-    hashes = [
-        item["data-file-hash"]
-        for item in soup.find_all("div", attrs={"data-file-hash": True})
-    ]
-    if not hashes:
-        return (
-            f"ERROR: Hash not found for : {page_link}")
-    dl_hash = hashes[0]
-    payload = f'------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name="token"\r\n\r\n{token}\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW--'
-    headers = {
-        "content-type": "multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW",
-        "cache-control": "no-cache",
-        "hash": dl_hash,
-    }
-    dl_link_resp = cget(
-        'post', f"https://krakenfiles.com/download/{hash}", data=payload, headers=headers)
-    dl_link_json = dl_link_resp.json()
-    if "url" in dl_link_json:
-        return dl_link_json["url"]
-    else:
-        return (
-            f"ERROR: Failed to acquire download URL from kraken for : {page_link}")
+        session.close()
+        return (f'ERROR: {e.__class__.__name__} While send post request')
 
 
 def uploadee(url: str) -> str:
@@ -623,19 +610,29 @@ def filepress(url):
     try:
         url = cget('GET', url).url
         raw = urlparse(url)
-        json_data = {
+
+        gd_data = {
             'id': raw.path.split('/')[-1],
             'method': 'publicDownlaod',
         }
+        tg_data = {
+            'id': raw.path.split('/')[-1],
+            'method': 'telegramDownload',
+        }
+        
         api = f'{raw.scheme}://{raw.hostname}/api/file/downlaod/'
-        res = cget('POST', api, headers={
-                   'Referer': f'{raw.scheme}://{raw.hostname}'}, json=json_data).json()
+        
+        gd_res = cget('POST', api, headers={'Referer': f'{raw.scheme}://{raw.hostname}'}, json=gd_data).json()
+        tg_res = cget('POST', api, headers={'Referer': f'{raw.scheme}://{raw.hostname}'}, json=tg_data).json()
+        
     except Exception as e:
-        return (f'ERROR: {e.__class__.__name__}')
-    if 'data' not in res:
-        return (f'ERROR: {res["statusText"]}')
-    return f'https://drive.google.com/uc?id={res["data"]}'
-
+        return f'Google Drive: ERROR: {e.__class__.__name__} \nTelegram: ERROR: {e.__class__.__name__}'
+    
+    gd_result = f'https://drive.google.com/uc?id={gd_res["data"]}' if 'data' in gd_res else f'ERROR: {gd_res["statusText"]}'
+    tg_result = f'https://tghub.xyz/?start={tg_res["data"]}' if 'data' in tg_res else "No Telegram file available "
+    
+    return f'Google Drive: {gd_result} \nTelegram: {tg_result}'
+           
 
 def gdtot(url):
     cget = create_scraper().request
