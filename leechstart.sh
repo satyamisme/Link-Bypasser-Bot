@@ -9,4 +9,5 @@ echo yes | sudo docker container prune
 #echo yes | sudo docker image prune -a
 sudo dockerd
 sudo docker build . -t bypass
-sudo docker run -p 61:61 bypass
+sudo docker run -p 63:63 bypass
+
