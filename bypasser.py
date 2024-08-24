@@ -1973,11 +1973,11 @@ def dulink(url):
 
 def krownlinks(url):
     client = cloudscraper.create_scraper(allow_brotli=False)
-    DOMAIN = "https://go.hostadviser.net/"
+    DOMAIN = "https://go.bloggerishyt.in/"
     url = url[:-1] if url[-1] == "/" else url
     code = url.split("/")[-1]
     final_url = f"{DOMAIN}/{code}"
-    ref = "blog.hostadviser.net/"
+    ref = "https://www.techkhulasha.com/"
     h = {"referer": ref}
     resp = client.get(final_url, headers=h)
     soup = BeautifulSoup(resp.content, "html.parser")
@@ -2434,7 +2434,7 @@ def kingurl(url):
     url = url[:-1] if url[-1] == "/" else url
     code = url.split("/")[-1]
     final_url = f"{DOMAIN}/{code}"
-    ref = "https://a1.bankshiksha.in/"
+    ref = "https://earnbox.bankshiksha.in/"
     h = {"referer": ref}
     resp = client.get(final_url, headers=h)
     soup = BeautifulSoup(resp.content, "html.parser")
